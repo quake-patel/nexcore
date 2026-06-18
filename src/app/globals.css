@@ -1,34 +1,54 @@
-/* Fonts loaded in layout.tsx */
+@import "tailwindcss";
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@theme {
+  --color-navy: var(--navy);
+  --color-navy2: var(--navy2);
+  --color-navy3: var(--navy3);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent2);
+  --color-accent3: var(--accent3);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-subtle-bg: var(--subtle-bg);
+  --color-heading: var(--heading-color);
+  
+  --font-sora: 'Sora', sans-serif;
+  --font-manrope: 'Manrope', sans-serif;
+}
+
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+*, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --navy: #050d1a;
-  --navy2: #0a1628;
-  --navy3: #0f2040;
-  --accent: #00d4ff;
-  --accent2: #7c3aed;
-  --accent3: #06ffa5;
-  --text: #e8edf5;
-  --muted: #7a8ba3;
-  --border: rgba(0, 212, 255, 0.12);
-  --card: rgba(255, 255, 255, 0.03);
+  --navy: #030712; /* Sleek high-end deep black-blue instead of outdated bright navy */
+  --navy2: #090e1a; /* Modern dark gray-blue card color */
+  --navy3: #111827; /* Rich dark neutral slate */
+  --accent: #06b6d4; /* Vibrant electric cyan */
+  --accent2: #8b5cf6; /* Sleek ultraviolet */
+  --accent3: #10b981; /* High-performance emerald */
+  --text: #f3f4f6; /* Modern cool white text */
+  --muted: #9ca3af; /* Elegant dark-mode gray */
+  --border: rgba(6, 182, 212, 0.08);
+  --card: rgba(255, 255, 255, 0.02);
   --subtle-bg: rgba(255, 255, 255, 0.04);
   --heading-color: #ffffff;
-  --nav-bg: rgba(5, 13, 26, 0.85);
+  --nav-bg: rgba(3, 7, 18, 0.75);
 }
 
 [data-theme="light"] {
-  --navy: #ffffff;
-  --navy2: #f1f5f9;
-  --navy3: #e2e8f0;
-  --text: #0f172a;
-  --muted: #475569;
-  --border: rgba(0, 0, 0, 0.08);
-  --card: #f8fafc;
+  --navy: #fcfcfd; /* Clean warm alabaster white background */
+  --navy2: #f3f4f6; /* Sleek cool white sections */
+  --navy3: #e5e7eb; /* Fine light border gray */
+  --text: #1f2937; /* Trustworthy slate gray for high contrast */
+  --muted: #4b5563; /* Accessible gray */
+  --border: rgba(0, 0, 0, 0.06);
+  --card: #ffffff;
   --subtle-bg: rgba(0, 0, 0, 0.02);
-  --heading-color: #0f172a;
-  --nav-bg: rgba(255, 255, 255, 0.85);
+  --heading-color: #111827;
+  --nav-bg: rgba(252, 252, 253, 0.75);
 }
 
 [data-theme="light"] .blog-card {
@@ -48,7 +68,7 @@ body {
 }
 
 /* ── NAV ── */
-nav {
+nav.legacy-nav-bar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   padding: 1.1rem 5%;
   display: flex; align-items: center; justify-content: space-between;
@@ -63,6 +83,19 @@ nav {
 .nav-links a:hover, .nav-links a.active { color: var(--accent); }
 .nav-cta { background: var(--accent); color: var(--navy); padding: 0.5rem 1.3rem; border-radius: 50px; font-size: 0.88rem; font-weight: 600; text-decoration: none; transition: opacity 0.2s; font-family: 'Manrope', sans-serif; }
 .nav-cta:hover { opacity: 0.85; }
+
+/* ── TRUST LOGOS ── */
+.logos { padding: 3rem 5%; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01); }
+.logos-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 3rem; justify-content: center; flex-wrap: wrap; }
+.logos p { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+.logo-pill { background: var(--subtle-bg); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 0.6rem 1.5rem; font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.02em; }
+
+/* ── SECTIONS COMMON ── */
+section.legacy-section { padding: 6rem 5%; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-tag { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.9rem; }
+.section-title { font-family: 'Sora', sans-serif; font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 800; color: var(--heading-color); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1rem; }
+.section-sub { font-size: 1rem; color: var(--muted); max-width: 540px; line-height: 1.7; font-weight: 300; }
 
 /* ── HERO ── */
 .hero { min-height: 100vh; display: flex; align-items: center; padding: 8rem 5% 5rem; position: relative; overflow: hidden; }
@@ -99,7 +132,7 @@ nav {
 .logo-pill { background: var(--subtle-bg); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 0.6rem 1.5rem; font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.02em; }
 
 /* ── SECTIONS COMMON ── */
-section { padding: 6rem 5%; }
+section.legacy-section { padding: 6rem 5%; }
 .section-inner { max-width: 1100px; margin: 0 auto; }
 .section-tag { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.9rem; }
 .section-title { font-family: 'Sora', sans-serif; font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 800; color: var(--heading-color); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1rem; }

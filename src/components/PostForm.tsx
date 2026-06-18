@@ -601,8 +601,8 @@ export default function PostForm({ mode, initialData }: Props) {
           {activeTab === 'seo' && (
             <div className="admin-section">
               <div className="seo-preview-box">
-                <div className="seo-preview-url">nexcore.io/blog/{displaySlug}</div>
-                <div className="seo-preview-title">{metaTitle || title || 'Your post title'} — NexCore Blog</div>
+                <div className="seo-preview-url">curationchamp.com/blog/{displaySlug}</div>
+                <div className="seo-preview-title">{metaTitle || title || 'Your post title'} — CurationChamp Blog</div>
                 <div className="seo-preview-desc">{metaDescription || excerpt || 'Your post excerpt will appear here as the meta description.'}</div>
               </div>
 
@@ -613,7 +613,7 @@ export default function PostForm({ mode, initialData }: Props) {
                 </label>
                 <input
                   className="admin-input"
-                  placeholder={title || 'Your post title — NexCore Blog'}
+                  placeholder={title || 'Your post title — CurationChamp Blog'}
                   value={metaTitle}
                   onChange={(e) => setMetaTitle(e.target.value)}
                   maxLength={70}
@@ -675,7 +675,7 @@ export default function PostForm({ mode, initialData }: Props) {
               <div className="admin-field">
                 <label className="admin-label">Canonical URL Slug</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--muted)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>nexcore.io/blog/</span>
+                  <span style={{ color: 'var(--muted)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>curationchamp.com/blog/</span>
                   <input 
                     className="admin-input" 
                     value={slug} 

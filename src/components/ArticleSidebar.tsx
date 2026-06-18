@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Post } from '@/lib/posts';
 import { slugify } from '@/lib/utils';
+import { Sparkles, Calendar, Clock } from 'lucide-react';
 
-const tagColors: Record<string, { bg: string; color: string }> = {
-  Cloud:    { bg: 'rgba(0,212,255,0.12)',   color: 'var(--accent)' },
-  'AI & ML':{ bg: 'rgba(6,255,165,0.12)',   color: 'var(--accent3)' },
-  Security: { bg: 'rgba(124,58,237,0.15)',  color: '#a78bfa' },
-  DevOps:   { bg: 'rgba(0,212,255,0.08)',   color: 'var(--accent)' },
-  Data:     { bg: 'rgba(255,184,0,0.12)',   color: '#fbbf24' },
+const tagStyles: Record<string, string> = {
+  'Cloud': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  'AI & ML': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  'Security': 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+  'DevOps': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  'Data': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
 };
+
+const defaultTagStyle = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
 
 type Props = {
   post: Post;
@@ -21,7 +24,6 @@ type Props = {
 export default function ArticleSidebar({ post, related }: Props) {
   const [activeId, setActiveId] = useState<string>('');
 
-  // ── Smooth scroll to heading ──────────────────────────────────────────────
   function goTo(id: string) {
     const el = document.getElementById(id);
     if (el) {
@@ -30,7 +32,6 @@ export default function ArticleSidebar({ post, related }: Props) {
     }
   }
 
-  // ── Highlight active TOC item as headings enter viewport ─────────────────
   useEffect(() => {
     const headingIds = post.content
       .filter((b) => b.type === 'h2')
@@ -61,84 +62,91 @@ export default function ArticleSidebar({ post, related }: Props) {
   const h2Items = post.content.filter((b) => b.type === 'h2');
 
   return (
-    <aside className="article-sidebar">
+    <aside className="w-full lg:w-80 shrink-0 flex flex-col gap-8 font-manrope">
+      
       {/* ── TABLE OF CONTENTS ── */}
-      <div className="sidebar-widget">
-        <h4 className="sidebar-widget-title">In this article</h4>
-        <nav className="toc-nav" aria-label="Table of contents">
-          {h2Items.map((b, i) => {
-            const id = slugify(b.text ?? '');
-            return (
-              <button
-                key={i}
-                className={`toc-item${activeId === id ? ' toc-active' : ''}`}
-                onClick={() => goTo(id)}
-              >
-                {b.text}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+      {h2Items.length > 0 && (
+        <div className="p-6 rounded-3xl border border-border bg-card shadow-xl backdrop-blur-sm">
+          <h4 className="text-xs font-bold font-sora text-heading uppercase tracking-wider pb-3 border-b border-border/40 mb-4">
+            In this article
+          </h4>
+          <nav className="flex flex-col gap-2.5" aria-label="Table of contents">
+            {h2Items.map((b, i) => {
+              const id = slugify(b.text ?? '');
+              const isActive = activeId === id;
+              return (
+                <button
+                  key={i}
+                  className={`text-left text-xs font-medium font-manrope transition-colors cursor-pointer py-1.5 px-2.5 rounded-lg border leading-relaxed ${
+                    isActive
+                      ? 'border-accent/20 bg-accent/5 text-accent font-semibold'
+                      : 'border-transparent text-muted hover:text-heading hover:bg-subtle-bg'
+                  }`}
+                  onClick={() => goTo(id)}
+                >
+                  {b.text}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      )}
 
       {/* ── RELATED ARTICLES ── */}
-      <div className="sidebar-widget">
-        <h4 className="sidebar-widget-title">Related articles</h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-          {related.map((rp) => {
-            const rtc = tagColors[rp.tag] ?? { bg: 'rgba(0,212,255,0.1)', color: 'var(--accent)' };
-            return (
-              <Link key={rp.slug} href={`/blog/${rp.slug}`} className="related-card">
-                <span className="related-card-emoji">{rp.emoji}</span>
-                <div>
-                  <span
-                    className="article-tag-pill"
-                    style={{
-                      background: rtc.bg,
-                      color: rtc.color,
-                      fontSize: '0.65rem',
-                      padding: '0.15rem 0.5rem',
-                      marginBottom: '0.35rem',
-                      display: 'inline-block',
-                    }}
-                  >
+      {related.length > 0 && (
+        <div className="p-6 rounded-3xl border border-border bg-card shadow-xl backdrop-blur-sm">
+          <h4 className="text-xs font-bold font-sora text-heading uppercase tracking-wider pb-3 border-b border-border/40 mb-4">
+            Related Insights
+          </h4>
+          <div className="flex flex-col gap-4">
+            {related.map((rp) => (
+              <Link
+                key={rp.slug}
+                href={`/blog/${rp.slug}`}
+                className="group flex gap-3.5 items-start p-3 rounded-2xl border border-transparent hover:border-border hover:bg-subtle-bg transition-all duration-300"
+              >
+                <span className="text-xl shrink-0 mt-0.5">{rp.emoji}</span>
+                <div className="flex-1">
+                  <span className={`text-[8px] font-bold font-sora uppercase tracking-wider px-2 py-0.5 rounded-full border ${tagStyles[rp.tag] ?? defaultTagStyle}`}>
                     {rp.tag}
                   </span>
-                  <p className="related-card-title">{rp.title}</p>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{rp.read}</span>
+                  <p className="text-xs font-bold font-sora text-heading mt-1.5 leading-snug tracking-tight group-hover:text-accent transition-colors">
+                    {rp.title}
+                  </p>
+                  <span className="text-[9px] text-muted font-manrope mt-1 block">
+                    {rp.read}
+                  </span>
                 </div>
               </Link>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* ── CTA ── */}
-      <div className="sidebar-cta">
-        <p className="section-tag" style={{ marginBottom: '0.5rem' }}>Work with us</p>
-        <h4
-          style={{
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 800,
-            color: '#fff',
-            fontSize: '1.1rem',
-            marginBottom: '0.6rem',
-            lineHeight: 1.3,
-          }}
-        >
-          Need help with your next project?
+      {/* ── SIDEBAR CONVERSION CTA ── */}
+      <div className="p-6 rounded-3xl border border-accent/20 bg-accent/[0.02] shadow-xl backdrop-blur-sm relative overflow-hidden text-center flex flex-col items-center gap-4">
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-accent/5 blur-xl pointer-events-none" />
+        
+        <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+          <Sparkles size={14} className="animate-pulse" />
+        </div>
+
+        <h4 className="text-sm font-bold font-sora text-heading leading-snug">
+          Need tech roadmap help?
         </h4>
-        <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.2rem', lineHeight: 1.6 }}>
-          Talk to one of our engineers — no obligation, no sales pitch.
+        
+        <p className="text-[11px] text-muted leading-relaxed font-light font-manrope max-w-[190px]">
+          Talk directly to our lead engineers. No obligations or sales loops.
         </p>
+
         <Link
           href="/contact"
-          className="btn-primary"
-          style={{ fontSize: '0.85rem', padding: '0.6rem 1.3rem', display: 'inline-flex' }}
+          className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-sora font-semibold text-xs text-navy bg-accent hover:opacity-90 shadow-md shadow-accent/15 transition-all"
         >
-          Get in touch →
+          Book Expert Call
         </Link>
       </div>
+
     </aside>
   );
 }

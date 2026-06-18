@@ -2,62 +2,62 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, Clock, Star, Inbox, ArrowRight } from 'lucide-react';
 import { posts as staticPosts } from '@/lib/posts';
 import { getLocalPosts, isLive } from '@/lib/localPosts';
 import type { Post } from '@/lib/posts';
 
 const ALL = 'All';
 
-const tagStyle: Record<string, { bg: string; color: string }> = {
-  'Cloud':    { bg: 'rgba(0,212,255,0.12)',   color: 'var(--accent)' },
-  'AI & ML':  { bg: 'rgba(6,255,165,0.12)',   color: 'var(--accent3)' },
-  'Security': { bg: 'rgba(124,58,237,0.15)',  color: '#a78bfa' },
-  'DevOps':   { bg: 'rgba(0,212,255,0.08)',   color: 'var(--accent)' },
-  'Data':     { bg: 'rgba(255,184,0,0.12)',   color: '#fbbf24' },
+const getTagClass = (tag: string) => {
+  const normalized = tag.toLowerCase().replace(/ & /g, '-').replace(/[^a-z0-9-]/g, '');
+  return `tag-badge tag-${normalized}`;
 };
-
-const defaultStyle = { bg: 'rgba(0,212,255,0.1)', color: 'var(--accent)' };
 
 export default function BlogFilter() {
   const [activeTag, setActiveTag] = useState(ALL);
   const [allPosts, setAllPosts] = useState<Post[]>(staticPosts);
+  const [email, setEmail] = useState('');
 
   // Merge localStorage custom posts on the client
   useEffect(() => {
-    const custom = getLocalPosts();
+    const custom = getLocalPosts().filter(isLive);
     if (custom.length > 0) {
-      // Custom posts appear first (most recent)
-      // Deduplicate by slug so that edited static posts override original ones
       const existingSlugs = new Set(custom.map(p => p.slug));
       const uniqueStatic = staticPosts.filter(p => !existingSlugs.has(p.slug));
       setAllPosts([...custom, ...uniqueStatic]);
     }
   }, []);
 
-  // Derive tag list from merged posts
   const tags = [ALL, ...Array.from(new Set(allPosts.map((p) => p.tag)))];
-
   const filtered = activeTag === ALL ? allPosts : allPosts.filter((p) => p.tag === activeTag);
   const [featured, ...rest] = filtered;
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    alert(`Thank you for subscribing, ${email}!`);
+    setEmail('');
+  };
 
   return (
     <>
       {/* ── CATEGORY FILTER BAR ── */}
-      <div className="blog-filter-bar" role="tablist" aria-label="Filter by category">
+      <div className="flex flex-wrap justify-center items-center gap-2 mb-12" role="tablist" aria-label="Filter by category">
         {tags.map((tag) => {
-          const ts = tagStyle[tag] ?? defaultStyle;
+          const isActive = activeTag === tag;
           return (
             <button
               key={tag}
               role="tab"
-              aria-selected={activeTag === tag}
+              aria-selected={isActive}
               onClick={() => setActiveTag(tag)}
-              className="blog-filter-pill"
-              style={
-                activeTag === tag
-                  ? { background: ts.bg, color: ts.color, borderColor: ts.color, opacity: 1 }
-                  : {}
-              }
+              className={`px-4 py-2 rounded-full text-xs font-semibold font-sora border transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-accent text-navy border-accent'
+                  : 'bg-card border-border text-muted hover:text-heading hover:border-accent/40'
+              }`}
             >
               {tag}
             </button>
@@ -66,158 +66,195 @@ export default function BlogFilter() {
       </div>
 
       {/* ── FEATURED POST ── */}
-      {featured && (
-        <Link href={`/blog/${featured.slug}`} className="featured-card">
-          <div className={`featured-img blog-img ${featured.imgCls}`} aria-hidden="true" style={featured.thumbnailUrl ? { backgroundImage: `url(${featured.thumbnailUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-            {!featured.thumbnailUrl && <span className="featured-emoji">{featured.emoji}</span>}
-          </div>
-          <div className="featured-body">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
-              <span
-                className="blog-tag"
-                style={{
-                  ...(tagStyle[featured.tag] ?? defaultStyle),
-                  background: (tagStyle[featured.tag] ?? defaultStyle).bg,
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '50px',
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                {featured.tag}
-              </span>
-              {activeTag === ALL && (
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    color: 'var(--accent)',
-                    fontWeight: 600,
-                    background: 'rgba(0,212,255,0.08)',
-                    padding: '0.2rem 0.6rem',
-                    borderRadius: '50px',
-                    border: '1px solid rgba(0,212,255,0.2)',
-                  }}
-                >
-                  ✦ Featured
-                </span>
-              )}
-            </div>
-            <h2 className="featured-title">{featured.title}</h2>
-            <p className="featured-excerpt">{featured.excerpt}</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-              <div className="testi-avatar">{featured.author.initials}</div>
-              <div>
-                <div style={{ fontSize: '0.88rem', fontWeight: 500, color: '#fff' }}>
-                  {featured.author.name}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{featured.author.role}</div>
-              </div>
-              <div className="blog-meta" style={{ marginLeft: 'auto' }}>
-                <span>{featured.date}</span>
-                <span>·</span>
-                <span>{featured.read}</span>
-              </div>
-            </div>
-          </div>
-        </Link>
-      )}
-
-      {/* ── POST GRID ── */}
-      {rest.length > 0 && (
-        <div className="blog-grid" style={{ marginTop: '2.5rem' }}>
-          {rest.map((post) => {
-            const ts = tagStyle[post.tag] ?? defaultStyle;
-            return (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="blog-card-link">
-                <article className="blog-card">
-                  <div className={`blog-img ${post.imgCls}`} style={post.thumbnailUrl ? { backgroundImage: `url(${post.thumbnailUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-                    {!post.thumbnailUrl && post.emoji}
+      <AnimatePresence mode="wait">
+        {featured && (
+          <motion.div
+            key={`featured-${featured.slug}`}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            className="mb-12"
+          >
+            <Link
+              href={`/blog/${featured.slug}`}
+              className="group grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 md:p-8 rounded-3xl border border-border bg-card shadow-2xl overflow-hidden backdrop-blur-sm hover:border-accent/30 hover:shadow-accent/5 transition-all duration-300"
+            >
+              {/* Image Col (5 cols) */}
+              <div className="lg:col-span-6 h-64 md:h-80 w-full rounded-2xl overflow-hidden relative border border-border/40 shrink-0">
+                {featured.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={featured.thumbnailUrl}
+                    alt={featured.title}
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${featured.imgCls || 'from-cyan-500/20 to-blue-500/10'} flex items-center justify-center text-6xl group-hover:scale-102 transition-transform duration-500`}>
+                    {featured.emoji}
                   </div>
-                  <div className="blog-body">
-                    <span
-                      className="blog-tag"
-                      style={{
-                        background: ts.bg,
-                        color: ts.color,
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: '50px',
-                        display: 'inline-block',
-                        marginBottom: '0.6rem',
-                      }}
-                    >
-                      {post.tag}
-                    </span>
-                    <h3>{post.title}</h3>
-                    <p>{post.excerpt}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: 'auto' }}>
-                      <div className="testi-avatar" style={{ width: '28px', height: '28px', fontSize: '0.65rem' }}>
-                        {post.author.initials}
-                      </div>
-                      <div className="blog-meta">
-                        <span>{post.date}</span>
-                        <span>·</span>
-                        <span>{post.read}</span>
-                      </div>
+                )}
+                {/* Featured Badge */}
+                {activeTag === ALL && (
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full bg-navy2/90 border border-border/80 text-[9px] font-bold font-sora text-accent tracking-wider uppercase shadow-lg">
+                    <Star size={9} className="fill-accent text-accent" />
+                    Featured
+                  </div>
+                )}
+              </div>
+
+              {/* Content Col (7 cols) */}
+              <div className="lg:col-span-6 flex flex-col justify-between py-2">
+                <div>
+                  <span className={getTagClass(featured.tag)}>
+                    {featured.tag}
+                  </span>
+                  
+                  <h2 className="text-xl md:text-2xl font-extrabold font-sora text-heading leading-tight mt-4 tracking-tight group-hover:text-accent transition-colors duration-200">
+                    {featured.title}
+                  </h2>
+                  
+                  <p className="text-xs md:text-sm text-muted leading-relaxed font-light mt-4 font-manrope">
+                    {featured.excerpt}
+                  </p>
+                </div>
+
+                {/* Author & Meta */}
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-border/40 mt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-subtle-bg border border-border flex items-center justify-center font-sora font-bold text-xs text-accent">
+                      {featured.author.initials}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold font-sora text-heading">{featured.author.name}</div>
+                      <div className="text-[10px] text-muted font-manrope">{featured.author.role}</div>
                     </div>
                   </div>
-                </article>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+
+                  <div className="flex gap-4 text-[10px] text-muted font-manrope">
+                    <span className="flex items-center gap-1"><Calendar size={11} className="text-accent" />{featured.date}</span>
+                    <span className="flex items-center gap-1"><Clock size={11} className="text-accent" />{featured.read}</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── POST GRID ── */}
+      <AnimatePresence mode="popLayout">
+        {rest.length > 0 && (
+          <motion.div
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12"
+          >
+            {rest.map((post) => (
+              <motion.div
+                key={post.slug}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="group rounded-3xl border border-border bg-card shadow-xl overflow-hidden backdrop-blur-sm flex flex-col justify-between h-[450px] hover:border-accent/30 hover:shadow-accent/5 transition-all duration-300"
+              >
+                
+                {/* Image */}
+                <Link href={`/blog/${post.slug}`} className="h-48 w-full overflow-hidden relative block border-b border-border/60">
+                  {post.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={post.thumbnailUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className={`w-full h-full bg-gradient-to-br ${post.imgCls || 'from-cyan-500/20 to-blue-500/10'} flex items-center justify-center text-4xl group-hover:scale-102 transition-transform duration-500`}>
+                      {post.emoji}
+                    </div>
+                  )}
+                  <div className={`absolute top-4 left-4 z-10 shadow-lg ${getTagClass(post.tag)}`}>
+                    {post.tag}
+                  </div>
+                </Link>
+
+                {/* Content */}
+                <div className="p-6 flex flex-col justify-between flex-1">
+                  <div>
+                    <h3 className="text-sm md:text-base font-bold font-sora text-heading leading-snug line-clamp-2 tracking-tight group-hover:text-accent transition-colors duration-200">
+                      <Link href={`/blog/${post.slug}`} className="hover:underline">
+                        {post.title}
+                      </Link>
+                    </h3>
+                    <p className="text-xs text-muted leading-relaxed font-light mt-3 line-clamp-3 font-manrope">
+                      {post.excerpt}
+                    </p>
+                  </div>
+
+                  {/* Metadata Row */}
+                  <div className="pt-4 border-t border-border/40 mt-4 flex items-center justify-between text-[10px] text-muted font-manrope">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-6 h-6 rounded-full bg-subtle-bg border border-border flex items-center justify-center text-[8px] font-bold font-sora text-accent">
+                        {post.author.initials}
+                      </div>
+                      <span className="font-semibold text-heading">{post.author.name}</span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <span className="flex items-center gap-0.5"><Calendar size={9} className="text-accent" />{post.date}</span>
+                      <span className="flex items-center gap-0.5"><Clock size={9} className="text-accent" />{post.read}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── EMPTY STATE ── */}
       {filtered.length === 0 && (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '5rem 2rem',
-            color: 'var(--muted)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            marginTop: '2rem',
-          }}
-        >
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📭</div>
-          <p style={{ fontSize: '1rem' }}>No posts in this category yet. Check back soon!</p>
+        <div className="text-center py-20 px-6 rounded-3xl border border-border bg-card shadow-inner flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-subtle-bg border border-border flex items-center justify-center text-muted">
+            <Inbox size={20} />
+          </div>
+          <h3 className="text-sm font-bold font-sora text-heading">No insights in this category</h3>
+          <p className="text-xs text-muted max-w-xs font-light font-manrope">
+            We are writing tech articles for this stack. Please choose another tab or check back later!
+          </p>
         </div>
       )}
 
       {/* ── NEWSLETTER CTA ── */}
-      <div className="newsletter-box">
-        <div className="newsletter-body">
-          <p className="section-tag" style={{ marginBottom: '0.5rem' }}>Stay sharp</p>
-          <h3
-            style={{
-              fontFamily: 'Sora, sans-serif',
-              fontWeight: 800,
-              fontSize: '1.6rem',
-              color: 'var(--heading-color)',
-              marginBottom: '0.5rem',
-            }}
-          >
-            Get our insights in your inbox
+      <div className="relative rounded-3xl p-10 md:p-12 border border-border/80 bg-gradient-to-br from-navy2/90 to-navy/95 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8 mt-20 font-manrope overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none bg-accent2/[0.02] blur-md" />
+        
+        <div className="flex-1 max-w-xl text-left z-10">
+          <span className="text-[9px] font-bold font-sora text-accent tracking-widest uppercase">
+            Stay Sharp
+          </span>
+          <h3 className="text-xl md:text-2xl font-extrabold font-sora text-heading tracking-tight leading-tight mt-2">
+            Get our tech insights in your inbox
           </h3>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', fontWeight: 300 }}>
-            No spam. Just the best articles from the NexCore team, once a month.
+          <p className="text-xs text-muted mt-2 font-light leading-relaxed">
+            No spam. Just the best enterprise software architecture and ROI-marketing reviews once a month.
           </p>
         </div>
-        <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+
+        <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2 max-w-md w-full shrink-0 z-10">
           <input
             type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Your work email"
-            className="cta-input"
-            style={{ borderRadius: '10px', minWidth: '240px' }}
+            className="w-full px-4 py-3 rounded-xl text-xs bg-subtle-bg border border-border text-heading outline-none focus:border-accent/40 font-manrope placeholder-muted"
           />
           <button
             type="submit"
-            className="btn-primary"
-            style={{ border: 'none', cursor: 'pointer', borderRadius: '10px' }}
+            className="px-6 py-3 rounded-xl text-xs font-semibold font-sora text-navy bg-accent hover:opacity-90 shadow-lg shadow-accent/15 flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer"
           >
-            Subscribe →
+            Subscribe <ArrowRight size={12} />
           </button>
         </form>
       </div>

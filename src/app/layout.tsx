@@ -1,27 +1,29 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import '@/components/curationchamp/curationchamp.css';
+import CurationChampLayoutWrapper from '@/components/curationchamp/CurationChampLayoutWrapper';
 
 export const metadata: Metadata = {
   title: {
-    default: 'NexCore IT Solutions — Engineering Digital Futures',
-    template: '%s — NexCore IT Solutions',
+    default: 'CurationChamp — Content Curation, Writing & Marketing Agency',
+    template: '%s — CurationChamp',
   },
   description:
-    'NexCore delivers enterprise-grade software development, cloud infrastructure, cybersecurity, and AI solutions that power the next generation of businesses.',
+    'CurationChamp turns scattered ideas into content that ranks, reads, and converts. Curation, writing, and marketing under one roof, with fixed scope and predictable pricing. Get a free content sample.',
   openGraph: {
-    title: 'NexCore IT Solutions — Engineering Digital Futures',
-    description: 'NexCore delivers enterprise-grade software development, cloud infrastructure, cybersecurity, and AI solutions that power the next generation of businesses.',
-    url: 'https://nexcore.io',
-    siteName: 'NexCore IT Solutions',
+    title: 'CurationChamp — Content Curation, Writing & Marketing Agency',
+    description:
+      'CurationChamp turns scattered ideas into content that ranks, reads, and converts. Curation, writing, and marketing under one roof, with fixed scope and predictable pricing. Get a free content sample.',
+    url: 'https://curationchamp.com',
+    siteName: 'CurationChamp',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NexCore IT Solutions — Engineering Digital Futures',
-    description: 'NexCore delivers enterprise-grade software development, cloud infrastructure, cybersecurity, and AI solutions that power the next generation of businesses.',
+    title: 'CurationChamp — Content Curation, Writing & Marketing Agency',
+    description:
+      'CurationChamp turns scattered ideas into content that ranks, reads, and converts. Curation, writing, and marketing under one roof, with fixed scope and predictable pricing. Get a free content sample.',
   },
 };
 
@@ -36,14 +38,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@200..800&display=swap"
           rel="stylesheet"
         />
       </head>
       <body>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <CurationChampLayoutWrapper>{children}</CurationChampLayoutWrapper>
       </body>
     </html>
   );

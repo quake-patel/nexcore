@@ -6,7 +6,7 @@ import { slugify } from '@/lib/utils';
 import ArticleSidebar from '@/components/ArticleSidebar';
 import CustomPostLoader from '@/components/CustomPostLoader';
 import ClientOverrideLoader from '@/components/ClientOverrideLoader';
-import LightRays from '@/components/LightRays';
+import { Calendar, Clock, ArrowLeft, Share2, Sparkles } from 'lucide-react';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,7 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  // Fallback keywords based on tag
   const defaultKeywords = ['NexCore', 'IT Solutions', 'Tech Blog', 'Enterprise Tech'];
   const tagKeywords: Record<string, string[]> = {
     'Cloud': ['Multi-Cloud', 'Cloud Architecture', 'AWS', 'Azure', 'GCP', 'FinOps'],
@@ -65,304 +64,313 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const tagColors: Record<string, { bg: string; color: string }> = {
-  Cloud:    { bg: 'rgba(0,212,255,0.12)',   color: 'var(--accent)' },
-  'AI & ML':{ bg: 'rgba(6,255,165,0.12)',   color: 'var(--accent3)' },
-  Security: { bg: 'rgba(124,58,237,0.15)',  color: '#a78bfa' },
-  DevOps:   { bg: 'rgba(0,212,255,0.08)',   color: 'var(--accent)' },
-  Data:     { bg: 'rgba(255,184,0,0.12)',   color: '#fbbf24' },
+const getTagClass = (tag: string) => {
+  const normalized = tag.toLowerCase().replace(/ & /g, '-').replace(/[^a-z0-9-]/g, '');
+  return `tag-badge tag-${normalized}`;
 };
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
   const post = getPost(slug);
 
-  // Static post not found → might be a custom localStorage post; render client loader
   if (!post) {
     return <CustomPostLoader slug={slug} />;
   }
 
   const related = getRelatedPosts(post.related).slice(0, 3);
-  const tc = tagColors[post.tag] ?? { bg: 'rgba(0,212,255,0.1)', color: 'var(--accent)' };
 
   return (
     <>
-      <div id="server-post-content">
+      <div id="server-post-content" className="bg-navy font-manrope min-h-screen">
+        
         {/* ── ARTICLE HERO ── */}
-      <div className="article-hero">
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          <LightRays
-            raysOrigin="top-center"
-            raysColor="#e8601b"
-            raysSpeed={1.2}
-            lightSpread={0.7}
-            rayLength={3}
-            followMouse={true}
-            mouseInfluence={0.1}
-            noiseAmount={0}
-            distortion={0}
-            className="custom-rays"
-            pulsating={false}
-            fadeDistance={1.1}
-            saturation={1.2}
-          />
-        </div>
-        <div className="article-hero-inner">
-          <div className="article-hero-meta">
-            <span className="article-tag-pill" style={{ background: tc.bg, color: tc.color }}>
-              {post.tag}
-            </span>
-            <span style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>{post.date}</span>
-            <span style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>·</span>
-            <span style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>{post.read}</span>
+        <div className="relative pt-36 pb-16 px-6 md:px-12 bg-navy overflow-hidden border-b border-border">
+          {/* Glow Spots */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="absolute top-[20%] left-[20%] w-[380px] h-[380px] rounded-full bg-accent/10 blur-[130px]" />
           </div>
-          <h1 className="article-title">{post.title}</h1>
-          <p className="article-excerpt">{post.excerpt}</p>
-          <div className="article-author-row">
-            <div className="testi-avatar article-avatar">{post.author.initials}</div>
-            <div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 500, color: '#fff' }}>
-                {post.author.name}
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
-                {post.author.role} · NexCore
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Hero image strip */}
-        <div className={`article-hero-img blog-img ${post.imgCls}`} aria-hidden="true" style={post.bannerUrl ? { backgroundImage: `url(${post.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-          {!post.bannerUrl && <span style={{ fontSize: '5rem' }}>{post.emoji}</span>}
-        </div>
-      </div>
 
-      {/* ── ARTICLE BODY ── */}
-      <section className="article-body-section">
-        <div className="article-layout">
+          <div className="max-w-4xl mx-auto z-10 relative flex flex-col items-start gap-6">
+            <Link
+              href="/blog"
+              className="flex items-center gap-1 text-xs font-semibold font-sora text-accent hover:underline"
+            >
+              <ArrowLeft size={12} /> Back to insights
+            </Link>
 
-          {/* ── MAIN CONTENT ── */}
-          <article className="article-content">
-            {post.content.map((block, i) => {
-              if (block.type === 'h2') {
-                const id = slugify(block.text ?? '');
-                return (
-                  <h2 key={i} id={id} className="article-h2">
-                    {block.text}
-                  </h2>
-                );
-              }
-              if (block.type === 'h3') {
-                const id = slugify(block.text ?? '');
-                return (
-                  <h3 key={i} id={id} className="article-h3">
-                    {block.text}
-                  </h3>
-                );
-              }
-              if (block.type === 'p') {
-                return <p key={i} className="article-p">{block.text}</p>;
-              }
-              if (block.type === 'ul') {
-                return (
-                  <ul key={i} className="article-ul">
-                    {block.items?.map((item, j) => (
-                      <li key={j} className="article-li">{item}</li>
-                    ))}
-                  </ul>
-                );
-              }
-              if (block.type === 'ol') {
-                return (
-                  <ol key={i} className="article-ol">
-                    {block.items?.map((item, j) => (
-                      <li key={j} className="article-li">{item}</li>
-                    ))}
-                  </ol>
-                );
-              }
-              if (block.type === 'blockquote') {
-                return (
-                  <blockquote key={i} className="article-blockquote">
-                    {block.text}
-                  </blockquote>
-                );
-              }
-              if (block.type === 'callout') {
-                return (
-                  <div key={i} className="article-callout">
-                    <span className="callout-icon">💡</span>
-                    <p>{block.text}</p>
-                  </div>
-                );
-              }
-              if (block.type === 'section') {
-                const TitleTag = (block.titleType || 'h2') as 'h2' | 'h3';
-                const id = slugify(block.title ?? '');
-                return (
-                  <div key={i} className="article-section-container">
-                    <TitleTag id={id} className={`article-${TitleTag}`}>
-                      {block.title}
-                    </TitleTag>
-                    {block.subBlocks?.map((sub, j) => {
-                      if (sub.type === 'p') {
-                        return <p key={j} className="article-p">{sub.text}</p>;
-                      }
-                      if (sub.type === 'ul') {
-                        return (
-                          <ul key={j} className="article-ul">
-                            {sub.items?.map((item, k) => (
-                              <li key={k} className="article-li">{item}</li>
-                            ))}
-                          </ul>
-                        );
-                      }
-                      if (sub.type === 'ol') {
-                        return (
-                          <ol key={j} className="article-ol">
-                            {sub.items?.map((item, k) => (
-                              <li key={k} className="article-li">{item}</li>
-                            ))}
-                          </ol>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                );
-              }
-              if (block.type === 'table') {
-                return (
-                  <div key={i} className="article-table-wrapper">
-                    <table className="article-table">
-                      {block.headers && block.headers.length > 0 && (
-                        <thead>
-                          <tr>
-                            {block.headers.map((header, j) => (
-                              <th key={j}>{header}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                      )}
-                      {block.rows && block.rows.length > 0 && (
-                        <tbody>
-                          {block.rows.map((row, j) => (
-                            <tr key={j}>
-                              {row.map((cell, k) => (
-                                <td key={k}>{cell}</td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      )}
-                    </table>
-                  </div>
-                );
-              }
-              return null;
-            })}
-
-            {/* ── SHARE / TAG ROW ── */}
-            <div className="article-footer-row">
-              <span
-                className="article-tag-pill"
-                style={{ background: tc.bg, color: tc.color, fontSize: '0.8rem', padding: '0.3rem 0.9rem' }}
-              >
+            <div className="flex flex-wrap items-center gap-4 text-[10px] text-muted font-manrope">
+              <span className={getTagClass(post.tag)}>
                 {post.tag}
               </span>
-              <div style={{ display: 'flex', gap: '0.6rem', marginLeft: 'auto' }}>
-                {(['Share on X', 'LinkedIn', 'Copy link'] as const).map((label) => (
-                  <button key={label} className="share-btn">{label}</button>
-                ))}
-              </div>
+              <span className="flex items-center gap-1"><Calendar size={11} className="text-accent" />{post.date}</span>
+              <span className="flex items-center gap-1"><Clock size={11} className="text-accent" />{post.read}</span>
             </div>
 
-            {/* ── AUTHOR BIO ── */}
-            <div className="author-bio-card">
-              <div className="testi-avatar author-bio-avatar">{post.author.initials}</div>
+            <h1 className="text-3xl md:text-5xl font-extrabold font-sora tracking-tight leading-tight text-heading max-w-3xl">
+              {post.title}
+            </h1>
+
+            <p className="text-xs md:text-sm text-muted font-light leading-relaxed max-w-2xl">
+              {post.excerpt}
+            </p>
+
+            <div className="flex items-center gap-3.5 pt-4 border-t border-border/40 w-full max-w-md">
+              <div className="w-10 h-10 rounded-full bg-subtle-bg border border-border flex items-center justify-center font-sora font-bold text-xs text-accent">
+                {post.author.initials}
+              </div>
               <div>
-                <div
-                  style={{
-                    fontSize: '0.78rem',
-                    color: 'var(--accent)',
-                    fontWeight: 600,
-                    marginBottom: '0.2rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                  }}
-                >
-                  Written by
-                </div>
-                <div
-                  style={{
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    color: '#fff',
-                    fontFamily: 'Syne, sans-serif',
-                    marginBottom: '0.3rem',
-                  }}
-                >
-                  {post.author.name}
-                </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-                  {post.author.role} at NexCore IT Solutions. Specialising in enterprise-grade
-                  engineering, cloud architecture, and scalable system design.
-                </div>
+                <div className="text-xs font-bold font-sora text-heading">{post.author.name}</div>
+                <div className="text-[10px] text-muted font-manrope">{post.author.role} · NexCore</div>
               </div>
             </div>
-          </article>
-
-          {/* ── SIDEBAR (client component — handles sticky + active TOC) ── */}
-          <ArticleSidebar post={post} related={related} />
+          </div>
         </div>
-      </section>
 
-      {/* ── RELATED POSTS FOOTER ── */}
-      <section className="article-related-section">
-        <div className="section-inner">
-          <p className="section-tag">Keep reading</p>
-          <h2
-            className="section-title"
-            style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}
-          >
-            More from the blog
-          </h2>
-          <div className="blog-grid">
-            {related.map((rp) => {
-              const rtc = tagColors[rp.tag] ?? { bg: 'rgba(0,212,255,0.1)', color: 'var(--accent)' };
-              return (
-                <Link key={rp.slug} href={`/blog/${rp.slug}`} className="blog-card-link">
-                  <article className="blog-card">
-                    <div className={`blog-img ${rp.imgCls}`}>{rp.emoji}</div>
-                    <div className="blog-body">
-                      <span
-                        className="blog-tag"
-                        style={{
-                          background: rtc.bg,
-                          color: rtc.color,
-                          padding: '0.2rem 0.6rem',
-                          borderRadius: '50px',
-                          display: 'inline-block',
-                          marginBottom: '0.6rem',
-                        }}
-                      >
-                        {rp.tag}
-                      </span>
-                      <h3>{rp.title}</h3>
-                      <p>{rp.excerpt}</p>
-                      <div className="blog-meta" style={{ marginTop: '1rem' }}>
-                        <span>{rp.date}</span><span>·</span><span>{rp.read}</span>
-                      </div>
+        {/* ── ARTICLE BODY ── */}
+        <section className="py-20 px-6 md:px-12 relative overflow-hidden bg-navy2">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-start">
+            
+            {/* ── MAIN CONTENT ── */}
+            <article className="flex-1 w-full max-w-3xl">
+              {post.content.map((block, i) => {
+                if (block.type === 'h2') {
+                  const id = slugify(block.text ?? '');
+                  return (
+                    <h2 key={i} id={id} className="text-xl md:text-2xl font-extrabold font-sora text-heading mt-10 mb-4 tracking-tight leading-tight border-b border-border/40 pb-2">
+                      {block.text}
+                    </h2>
+                  );
+                }
+                if (block.type === 'h3') {
+                  const id = slugify(block.text ?? '');
+                  return (
+                    <h3 key={i} id={id} className="text-lg font-bold font-sora text-heading mt-8 mb-3 tracking-tight leading-tight">
+                      {block.text}
+                    </h3>
+                  );
+                }
+                if (block.type === 'p') {
+                  return (
+                    <p key={i} className="text-xs md:text-sm text-muted font-light leading-relaxed font-manrope mb-6">
+                      {block.text}
+                    </p>
+                  );
+                }
+                if (block.type === 'ul') {
+                  return (
+                    <ul key={i} className="list-disc pl-6 text-xs md:text-sm text-muted font-light leading-relaxed font-manrope mb-6 flex flex-col gap-2">
+                      {block.items?.map((item, j) => (
+                        <li key={j}>{item}</li>
+                      ))}
+                    </ul>
+                  );
+                }
+                if (block.type === 'ol') {
+                  return (
+                    <ol key={i} className="list-decimal pl-6 text-xs md:text-sm text-muted font-light leading-relaxed font-manrope mb-6 flex flex-col gap-2">
+                      {block.items?.map((item, j) => (
+                        <li key={j}>{item}</li>
+                      ))}
+                    </ol>
+                  );
+                }
+                if (block.type === 'blockquote') {
+                  return (
+                    <blockquote key={i} className="border-l-2 border-accent bg-subtle-bg p-5 rounded-r-2xl text-xs md:text-sm text-heading italic font-light font-manrope mb-6 leading-relaxed">
+                      &ldquo;{block.text}&rdquo;
+                    </blockquote>
+                  );
+                }
+                if (block.type === 'callout') {
+                  return (
+                    <div key={i} className="flex gap-3.5 items-start p-5 rounded-2xl border border-accent/20 bg-accent/[0.03] text-xs md:text-sm text-heading leading-relaxed mb-6 font-manrope shadow-sm">
+                      <div className="w-5 h-5 rounded bg-accent/15 border border-accent/25 flex items-center justify-center text-accent text-[10px] shrink-0 mt-0.5 font-sora font-bold">💡</div>
+                      <p className="font-light">{block.text}</p>
                     </div>
-                  </article>
+                  );
+                }
+                if (block.type === 'section') {
+                  const TitleTag = (block.titleType || 'h2') as 'h2' | 'h3';
+                  const id = slugify(block.title ?? '');
+                  const headingCls = TitleTag === 'h2'
+                    ? 'text-xl md:text-2xl font-extrabold font-sora text-heading mt-10 mb-4 tracking-tight leading-tight border-b border-border/40 pb-2'
+                    : 'text-lg font-bold font-sora text-heading mt-8 mb-3 tracking-tight leading-tight';
+
+                  return (
+                    <div key={i} className="mb-8">
+                      <TitleTag id={id} className={headingCls}>
+                        {block.title}
+                      </TitleTag>
+                      {block.subBlocks?.map((sub, j) => {
+                        if (sub.type === 'p') {
+                          return (
+                            <p key={j} className="text-xs md:text-sm text-muted font-light leading-relaxed font-manrope mb-4">
+                              {sub.text}
+                            </p>
+                          );
+                        }
+                        if (sub.type === 'ul') {
+                          return (
+                            <ul key={j} className="list-disc pl-6 text-xs md:text-sm text-muted font-light leading-relaxed font-manrope mb-4 flex flex-col gap-2">
+                              {sub.items?.map((item, k) => (
+                                <li key={k}>{item}</li>
+                              ))}
+                            </ul>
+                          );
+                        }
+                        if (sub.type === 'ol') {
+                          return (
+                            <ol key={j} className="list-decimal pl-6 text-xs md:text-sm text-muted font-light leading-relaxed font-manrope mb-4 flex flex-col gap-2">
+                              {sub.items?.map((item, k) => (
+                                <li key={k}>{item}</li>
+                              ))}
+                            </ol>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  );
+                }
+                if (block.type === 'table') {
+                  return (
+                    <div key={i} className="w-full overflow-x-auto rounded-2xl border border-border bg-card mb-6 shadow-sm">
+                      <table className="w-full text-left text-xs border-collapse">
+                        {block.headers && block.headers.length > 0 && (
+                          <thead>
+                            <tr className="bg-subtle-bg border-b border-border/80">
+                              {block.headers.map((header, j) => (
+                                <th key={j} className="p-3.5 text-xs font-bold font-sora text-heading tracking-wide">
+                                  {header}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                        )}
+                        {block.rows && block.rows.length > 0 && (
+                          <tbody className="divide-y divide-border/40">
+                            {block.rows.map((row, j) => (
+                              <tr key={j}>
+                                {row.map((cell, k) => (
+                                  <td key={k} className="p-3.5 text-xs text-muted font-manrope font-light">
+                                    {cell}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        )}
+                      </table>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+
+              {/* ── SHARE / TAG ROW ── */}
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-8 border-t border-border/40 mt-12">
+                <span className={getTagClass(post.tag)}>
+                  {post.tag}
+                </span>
+                
+                <div className="flex gap-2">
+                  {['Share on X', 'LinkedIn', 'Copy Link'].map((label) => (
+                    <button
+                      key={label}
+                      className="px-3.5 py-1.5 rounded-full border border-border bg-card text-[10px] font-semibold text-muted hover:text-accent hover:border-accent/40 transition-colors cursor-pointer"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── AUTHOR BIO CARD ── */}
+              <div className="flex gap-5 items-start p-6 md:p-8 rounded-3xl border border-border bg-card shadow-xl backdrop-blur-sm mt-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-accent/5 blur-xl pointer-events-none" />
+                <div className="w-12 h-12 rounded-full bg-subtle-bg border border-border flex items-center justify-center font-sora font-bold text-sm text-accent shrink-0">
+                  {post.author.initials}
+                </div>
+                <div>
+                  <span className="text-[8px] font-bold font-sora text-accent uppercase tracking-widest block mb-1">
+                    WRITTEN BY
+                  </span>
+                  <h4 className="text-sm font-bold font-sora text-heading leading-tight mb-2">
+                    {post.author.name}
+                  </h4>
+                  <p className="text-xs text-muted leading-relaxed font-light font-manrope">
+                    {post.author.role} at NexCore. Specialises in production-grade React architectures, serverless DevOps, and multi-region microservice deployments.
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            {/* ── SIDEBAR ── */}
+            <ArticleSidebar post={post} related={related} />
+          </div>
+        </section>
+
+        {/* ── RELATED POSTS FOOTER ── */}
+        {related.length > 0 && (
+          <section className="py-24 px-6 md:px-12 bg-navy border-t border-border relative overflow-hidden">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center">
+                <span className="text-xs font-semibold font-sora text-accent tracking-widest uppercase">
+                  Keep Reading
+                </span>
+                <h2 className="text-2xl md:text-3xl font-extrabold font-sora text-heading tracking-tight mt-3">
+                  More From the NexCore Blog
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {related.map((rp) => {
+                  return (
+                    <article
+                      key={rp.slug}
+                      className="group rounded-3xl border border-border bg-card shadow-xl overflow-hidden backdrop-blur-sm flex flex-col justify-between h-[420px] hover:border-accent/30 hover:shadow-accent/5 transition-all duration-300"
+                    >
+                      <Link href={`/blog/${rp.slug}`} className="h-44 w-full bg-gradient-to-br from-cyan-500/20 to-blue-500/10 flex items-center justify-center text-4xl group-hover:scale-102 transition-transform duration-500 relative block border-b border-border/60">
+                        {rp.emoji}
+                        <div className={`absolute top-4 left-4 z-10 shadow-lg ${getTagClass(rp.tag)}`}>
+                          {rp.tag}
+                        </div>
+                      </Link>
+
+                      <div className="p-6 flex flex-col justify-between flex-1">
+                        <div>
+                          <h3 className="text-xs md:text-sm font-bold font-sora text-heading leading-snug line-clamp-2 tracking-tight group-hover:text-accent transition-colors duration-200">
+                            <Link href={`/blog/${rp.slug}`} className="hover:underline">
+                              {rp.title}
+                            </Link>
+                          </h3>
+                          <p className="text-[11px] text-muted leading-relaxed font-light mt-3 line-clamp-3 font-manrope">
+                            {rp.excerpt}
+                          </p>
+                        </div>
+
+                        <div className="pt-4 border-t border-border/40 mt-4 flex items-center justify-between text-[9px] text-muted font-manrope">
+                          <span className="flex items-center gap-1"><Calendar size={10} className="text-accent" />{rp.date}</span>
+                          <span className="flex items-center gap-1"><Clock size={10} className="text-accent" />{rp.read}</span>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-center mt-12">
+                <Link
+                  href="/blog"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full font-sora font-semibold text-xs text-heading border border-border bg-subtle-bg hover:bg-border/20 transition-all"
+                >
+                  ← Back to all insights
                 </Link>
-              );
-            })}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            <Link href="/blog" className="btn-outline">← Back to all articles</Link>
-          </div>
-        </div>
-      </section>
+              </div>
+            </div>
+          </section>
+        )}
+
       </div>
       <ClientOverrideLoader slug={slug} />
     </>

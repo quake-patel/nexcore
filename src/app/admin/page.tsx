@@ -8,11 +8,20 @@ import {
   type LocalPost, type PostStatus,
 } from '@/lib/localPosts';
 import { getPagesMetadata, savePageMetadata } from '@/lib/localPages';
+import { getAllCustomLayouts } from '@/lib/builderLayouts';
 
 const TAG_COLORS: Record<string, string> = {
   Cloud: '#00d4ff', 'AI & ML': '#06ffa5', Security: '#a78bfa',
   DevOps: '#00d4ff', Data: '#fbbf24',
 };
+
+const PAGE_LABELS: Record<string, string> = {
+  home: 'Home Page',
+  'content-writing-agency': 'Content Writing Agency',
+  'content-marketing-agency': 'Content Marketing Agency',
+  blog: 'Blog Index Page',
+};
+
 
 function StatusBadge({ status, scheduledAt }: { status: PostStatus; scheduledAt?: string }) {
   const m = STATUS_META[status];
@@ -39,11 +48,8 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab]     = useState<'blog' | 'seo'>('blog');
   const [pagesMeta, setPagesMeta]     = useState<Record<string, { title: string; description: string }>>({
     home: { title: '', description: '' },
-    about: { title: '', description: '' },
-    services: { title: '', description: '' },
-    process: { title: '', description: '' },
-    technologies: { title: '', description: '' },
-    contact: { title: '', description: '' },
+    'content-writing-agency': { title: '', description: '' },
+    'content-marketing-agency': { title: '', description: '' },
     blog: { title: '', description: '' },
   });
 
@@ -54,13 +60,26 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const data = getPagesMetadata();
+    const customLayouts = getAllCustomLayouts();
     setPagesMeta((prev) => {
-      const updated = { ...prev };
-      Object.keys(data).forEach((key) => {
-        updated[key] = {
-          title: data[key].title || '',
-          description: data[key].description || '',
-        };
+      const updated: Record<string, { title: string; description: string }> = {
+        home: { title: '', description: '' },
+        'content-writing-agency': { title: '', description: '' },
+        'content-marketing-agency': { title: '', description: '' },
+        blog: { title: '', description: '' },
+      };
+      Object.keys(customLayouts).forEach((key) => {
+        if (!updated[key]) {
+          updated[key] = { title: '', description: '' };
+        }
+      });
+      Object.keys(updated).forEach((key) => {
+        if (data[key]) {
+          updated[key] = {
+            title: data[key].title || '',
+            description: data[key].description || '',
+          };
+        }
       });
       return updated;
     });
@@ -228,7 +247,7 @@ export default function AdminDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {Object.keys(pagesMeta).map((pageKey) => (
               <div key={pageKey} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.5rem' }}>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', textTransform: 'capitalize', marginBottom: '1rem', color: '#fff' }}>{pageKey} Page</h3>
+                <h3 style={{ fontFamily: 'Syne, sans-serif', marginBottom: '1rem', color: '#fff' }}>{PAGE_LABELS[pageKey] || `Custom: /${pageKey}`}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '0.4rem' }}>Meta Title</label>
@@ -238,7 +257,7 @@ export default function AdminDashboard() {
                       style={{ width: '100%', minWidth: 'unset', borderRadius: '8px' }}
                       value={pagesMeta[pageKey].title}
                       onChange={(e) => setPagesMeta(prev => ({ ...prev, [pageKey]: { ...prev[pageKey], title: e.target.value } }))}
-                      placeholder={`Enter title for ${pageKey} page`}
+                      placeholder={`Enter title for ${PAGE_LABELS[pageKey] || `/${pageKey}`}...`}
                     />
                   </div>
                   <div>
@@ -249,7 +268,7 @@ export default function AdminDashboard() {
                       rows={3}
                       value={pagesMeta[pageKey].description}
                       onChange={(e) => setPagesMeta(prev => ({ ...prev, [pageKey]: { ...prev[pageKey], description: e.target.value } }))}
-                      placeholder={`Enter description for ${pageKey} page`}
+                      placeholder={`Enter description for ${PAGE_LABELS[pageKey] || `/${pageKey}`}...`}
                     />
                   </div>
                   <button
@@ -257,7 +276,7 @@ export default function AdminDashboard() {
                     style={{ width: 'fit-content', border: 'none', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
                     onClick={() => handleSavePageMeta(pageKey)}
                   >
-                    Save {pageKey} SEO
+                    Save {PAGE_LABELS[pageKey] || `/${pageKey}`} SEO
                   </button>
                 </div>
               </div>

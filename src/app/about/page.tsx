@@ -1,100 +1,115 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import ClientMetaUpdater from '@/components/ClientMetaUpdater';
+import AboutSection from '@/components/AboutSection';
+import ClientPageCustomizer from '@/components/ClientPageCustomizer';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'Learn about NexCore — our story, mission, team, and the values that drive everything we build.',
+  description: 'Learn about NexCore — our software engineering heritage, ROI-focused acquisition philosophies, and our global delivery infrastructure.',
   openGraph: {
-    title: 'About Us — NexCore IT Solutions',
-    description: 'Learn about NexCore — our story, mission, team, and the values that drive everything we build.',
+    title: 'About Us — NexCore IT Solutions & Marketing',
+    description: 'Learn about NexCore — our software engineering heritage, ROI-focused acquisition philosophies, and our global delivery infrastructure.',
   },
 };
 
 export default function AboutPage() {
   return (
-    <>
+    <ClientPageCustomizer pageKey="about">
       <ClientMetaUpdater pageKey="about" />
-      <div className="page-hero">
-        <div className="page-hero-inner">
-          <p className="section-tag">Who we are</p>
-          <h1 className="section-title" style={{ fontSize: 'clamp(2.5rem,5vw,4rem)' }}>
-            We&apos;re builders.<br />Not just consultants.
+      
+      {/* ── PAGE HERO ── */}
+      <div className="relative pt-36 pb-20 px-6 md:px-12 bg-navy overflow-hidden text-center font-manrope">
+        {/* Glow Spots */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[20%] left-[20%] w-[380px] h-[380px] rounded-full bg-accent2/10 blur-[130px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(6,182,212,0.04)_1px,transparent_1px)] [background-size:32px_32px]" />
+        </div>
+
+        <div className="max-w-4xl mx-auto z-10 relative flex flex-col items-center gap-5">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/8 border border-accent/20">
+            <Sparkles size={11} className="text-accent animate-pulse" />
+            <span className="text-[10px] font-bold font-sora text-accent tracking-widest uppercase">
+              Our Journey &amp; Culture
+            </span>
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold font-sora tracking-tight leading-tight text-heading">
+            Builders at Heart.<br />Engineered for Results.
           </h1>
-          <p className="section-sub">
-            Founded in 2010 in Ahmedabad, NexCore started as a small team of
-            developers with a big idea: technology should empower businesses,
-            not slow them down.
+          <p className="text-sm md:text-base text-muted font-light leading-relaxed max-w-xl">
+            Founded in GIFT City, Ahmedabad in 2010, NexCore started with a primary mission: custom digital platforms should directly drive buyer actions and business growth.
           </p>
         </div>
       </div>
 
-      <section style={{ background: 'var(--navy2)' }}>
-        <div className="section-inner">
-          <div className="about-grid">
-            <div className="about-visual" aria-hidden="true">
-              <div className="about-visual-content">
-                <div className="av-card accent">
-                  <div className="av-num">500<small>+</small></div>
-                  <div className="av-label">Projects delivered</div>
-                </div>
-                <div className="av-card">
-                  <div className="av-num">120<small>+</small></div>
-                  <div className="av-label">Engineers &amp; designers</div>
-                </div>
-                <div className="av-card">
-                  <div className="av-num">40<small>+</small></div>
-                  <div className="av-label">Countries served</div>
-                </div>
-                <div className="av-card accent">
-                  <div className="av-num">14<small>yrs</small></div>
-                  <div className="av-label">In the industry</div>
-                </div>
+      {/* Stats and Narrative Blocks */}
+      <AboutSection />
+
+      {/* Secondary Values Grid */}
+      <section className="bg-navy2 py-24 px-6 md:px-12 relative overflow-hidden font-manrope">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center">
+            <span className="text-xs font-semibold font-sora text-accent tracking-widest uppercase">
+              Our Core Philosophies
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold font-sora text-heading tracking-tight mt-3">
+              Values That Govern Our Work
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'High-Integrity Codebase',
+                desc: 'We write clear, type-safe, document-backed scripts. We hate code shortcuts or quick patches that create system technical debt later.'
+              },
+              {
+                title: 'Strict Commercial ROI',
+                desc: 'Every product feature we map and every ad asset we launch is audited against high conversion performance and user engagement.'
+              },
+              {
+                title: 'Seamless Collaboration',
+                desc: 'We integrate deeply with your internal product planning and engineering teams via Slack channels, daily sprints, and transparent reviews.'
+              }
+            ].map((value, idx) => (
+              <div key={idx} className="p-8 rounded-3xl border border-border bg-card shadow-lg flex flex-col gap-4">
+                <span className="text-2xl font-bold font-sora text-accent">0{idx + 1}</span>
+                <h3 className="text-base font-bold font-sora text-heading">{value.title}</h3>
+                <p className="text-xs text-muted leading-relaxed font-light font-manrope">{value.desc}</p>
               </div>
-            </div>
-            <div className="about-text">
-              <p className="section-tag">Our mission</p>
-              <h2 className="section-title">Technology that moves business forward</h2>
-              <p className="section-sub">
-                Every project we take on is guided by one question: how does this
-                create real value for the people who use it?
-              </p>
-              <div className="feat">
-                <div className="feat-dot" />
-                <div>
-                  <h4>Mission-driven engineering</h4>
-                  <p>Every line of code we write is purpose-built to solve a real business problem — not to add complexity.</p>
-                </div>
-              </div>
-              <div className="feat">
-                <div className="feat-dot" />
-                <div>
-                  <h4>Long-term partnerships</h4>
-                  <p>98% of our clients return for follow-on work. We invest in understanding your domain as deeply as you do.</p>
-                </div>
-              </div>
-              <div className="feat">
-                <div className="feat-dot" />
-                <div>
-                  <h4>Global reach, local presence</h4>
-                  <p>With delivery centres across India, Europe, and the US, we follow the sun to keep your projects moving.</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section style={{ padding: '0 5% 5rem' }}>
-        <div className="cta-box">
-          <h2>Want to work with us?</h2>
-          <p>We&apos;d love to hear about your project and explore how we can help.</p>
-          <div className="hero-actions" style={{ justifyContent: 'center' }}>
-            <Link href="/contact" className="btn-primary">Get in touch →</Link>
-            <Link href="/services" className="btn-outline">View our services</Link>
+      {/* Conversion Banner */}
+      <section className="bg-navy py-24 px-6 md:px-12 font-manrope relative overflow-hidden">
+        <div className="max-w-5xl mx-auto z-10 relative">
+          <div className="relative rounded-3xl p-10 md:p-12 border border-border/80 bg-gradient-to-br from-navy2/90 to-navy/95 shadow-2xl text-center flex flex-col items-center gap-6">
+            <h2 className="text-2xl md:text-3xl font-extrabold font-sora text-heading tracking-tight leading-tight max-w-lg">
+              Want to scale your product or traffic pipeline?
+            </h2>
+            <p className="text-xs text-muted max-w-md font-light leading-relaxed">
+              We would love to discuss your engineering obstacles and custom customer-acquisition goals.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center items-center">
+              <Link
+                href="/contact"
+                className="flex items-center gap-2 px-8 py-3.5 rounded-full font-sora font-semibold text-xs text-navy bg-accent hover:opacity-90 shadow-lg shadow-accent/15 transition-all cursor-pointer"
+              >
+                Schedule Consultation <ArrowRight size={13} />
+              </Link>
+              <Link
+                href="/services"
+                className="flex items-center gap-2 px-8 py-3.5 rounded-full font-sora font-semibold text-xs text-heading border border-border bg-subtle-bg hover:bg-border/20 transition-all"
+              >
+                View Capabilities
+              </Link>
+            </div>
           </div>
         </div>
       </section>
-    </>
+    </ClientPageCustomizer>
   );
 }

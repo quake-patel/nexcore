@@ -1,99 +1,166 @@
+'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { 
+  Laptop, 
+  Smartphone, 
+  Search, 
+  Share2, 
+  Target, 
+  Palette, 
+  Workflow, 
+  Cloud,
+  ArrowUpRight
+} from 'lucide-react';
 
 const services = [
   {
-    title: 'Custom Software Development',
-    desc: 'Tailored enterprise software, SaaS platforms, and custom applications using secure, scalable full-stack technologies.',
-    icon: (
-      <svg viewBox="0 0 24 24">
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <path d="M8 21h8M12 17v4" />
-      </svg>
-    ),
+    title: 'Web Engineering',
+    desc: 'High-performance Next.js & React architectures, secure custom headless commerce, API ecosystems, and modern serverless platforms.',
+    icon: Laptop,
+    badge: 'Core',
+    color: 'from-accent to-accent2'
   },
   {
-    title: 'SAAS & Cloud Solutions',
-    desc: 'Architect and build scalable cloud-native SaaS platforms with microservices, secure deployment, and auto-scaling.',
-    icon: (
-      <svg viewBox="0 0 24 24">
-        <path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-      </svg>
-    ),
+    title: 'App Engineering',
+    desc: 'Immersive cross-platform native iOS & Android applications built with React Native and Flutter, designed to scale with millions of users.',
+    icon: Smartphone,
+    badge: 'Mobile',
+    color: 'from-accent2 to-accent3'
   },
   {
-    title: 'eCommerce & API Development',
-    desc: 'Build secure, high-performing eCommerce platforms and robust APIs for seamless integration and growth.',
-    icon: (
-      <svg viewBox="0 0 24 24">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
+    title: 'SEO & Growth Engine',
+    desc: 'Rigorous organic technical SEO audit, high-impact content clustering, speed optimization, and semantic search authority architectures.',
+    icon: Search,
+    badge: 'ROI',
+    color: 'from-accent3 to-accent'
   },
   {
-    title: 'AI/ML Development',
-    desc: 'Transform your business with intelligent solutions, machine learning pipelines, and AI-driven automation.',
-    icon: (
-      <svg viewBox="0 0 24 24">
-        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-        <line x1="12" y1="22.08" x2="12" y2="12" />
-      </svg>
-    ),
+    title: 'Performance Marketing',
+    desc: 'Data-driven Google Search, Display, and Video campaigns engineered to scale business pipeline, lower acquisition costs, and maximize ROI.',
+    icon: Target,
+    badge: 'Growth',
+    color: 'from-accent to-accent3'
   },
   {
-    title: 'Web & Mobile Apps',
-    desc: 'Build powerful, responsive web applications and native or cross-platform mobile apps for iOS and Android.',
-    icon: (
-      <svg viewBox="0 0 24 24">
-        <rect x="2" y="2" width="9" height="9" rx="1" />
-        <rect x="13" y="2" width="9" height="9" rx="1" />
-        <rect x="2" y="13" width="9" height="9" rx="1" />
-        <rect x="13" y="13" width="9" height="9" rx="1" />
-      </svg>
-    ),
+    title: 'Social & Brand Engagement',
+    desc: 'Creative social media campaign strategies, influencer management, highly aesthetic graphic asset production, and community scaling.',
+    icon: Share2,
+    badge: 'Brand',
+    color: 'from-accent2 to-accent'
   },
   {
-    title: 'Dedicated Dev Teams',
-    desc: 'Hire skilled developers to extend your team with flexible hourly, part-time, or full-time engagement models.',
-    icon: (
-      <svg viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.07 4.93A10 10 0 116.93 19.07" />
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83" />
-      </svg>
-    ),
+    title: 'Branding & UI/UX Design',
+    desc: 'Sleek design assets, interactive prototypes, high-fidelity mockups, enterprise design system definitions, and beautiful typography choices.',
+    icon: Palette,
+    badge: 'Creative',
+    color: 'from-accent3 to-accent2'
+  },
+  {
+    title: 'AI & Automation Solutions',
+    desc: 'AI agents, LLM tool chains, workflows automation, data intelligence scrapers, and predictive machine learning models for corporate process scaling.',
+    icon: Workflow,
+    badge: 'Future',
+    color: 'from-accent to-accent2'
+  },
+  {
+    title: 'Cloud & IT Consulting',
+    desc: 'AWS & Azure deployments, multi-region auto-scaling setups, Kubernetes orchestrations, strict cybersecurity audits, and 24/7 DevOps support.',
+    icon: Cloud,
+    badge: 'Infra',
+    color: 'from-accent2 to-accent3'
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
 export default function ServicesSection() {
   return (
-    <section id="services" style={{ background: 'var(--navy)' }}>
-      <div className="section-inner">
-        <p className="section-tag">What we do</p>
-        <h2 className="section-title">
-          Enterprise-grade services
-          <br />
-          for every stage of growth
-        </h2>
-        <p className="section-sub">
-          From startups to Fortune 500s, we deliver technology solutions that
-          are built to scale and designed to last.
-        </p>
-        <div className="services-grid">
-          {services.map((svc) => (
-            <div key={svc.title} className="service-card">
-              <div className="svc-icon">{svc.icon}</div>
-              <h3>{svc.title}</h3>
-              <p>{svc.desc}</p>
-              <Link href="/contact" className="svc-link">
-                Learn more{' '}
-                <svg viewBox="0 0 24 24">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          ))}
+    <section id="services" className="bg-navy py-24 px-6 md:px-12 relative overflow-hidden font-manrope">
+      
+      {/* Background shape */}
+      <div className="absolute top-[40%] right-0 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[120px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Block */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
+          <div className="max-w-xl">
+            <span className="text-xs font-semibold font-sora text-accent tracking-widest uppercase">
+              Core Capabilities
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold font-sora text-heading tracking-tight leading-tight mt-3">
+              Premium Solutions for High-Velocity Enterprises
+            </h2>
+          </div>
+          <p className="text-sm text-muted max-w-sm leading-relaxed font-light">
+            We operate at the convergence of advanced digital engineering and aggressive performance marketing to fuel sustainable enterprise expansion.
+          </p>
         </div>
+
+        {/* Services Grid */}
+        <motion.div 
+          variants={containerVariants as any}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {services.map((svc, idx) => (
+            <motion.div
+              key={idx}
+              variants={cardVariants as any}
+              whileHover={{ y: -6 }}
+              className="group relative flex flex-col justify-between h-[340px] p-6 rounded-2xl border border-border bg-card shadow-lg hover:shadow-accent/5 hover:border-accent/30 transition-all duration-300 backdrop-blur-sm overflow-hidden"
+            >
+              {/* Corner Glow Overlay on Hover */}
+              <div className={`absolute -right-16 -top-16 w-32 h-32 rounded-full bg-gradient-to-br ${svc.color} opacity-0 group-hover:opacity-10 blur-xl transition-all duration-300`} />
+              
+              <div>
+                {/* Top Badge & Icon Row */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className={`w-12 h-12 rounded-xl bg-subtle-bg border border-border flex items-center justify-center text-accent group-hover:text-heading group-hover:bg-gradient-to-r group-hover:${svc.color} group-hover:border-transparent transition-all duration-300 shadow-inner`}>
+                    <svc.icon size={22} className="stroke-[1.5]" />
+                  </div>
+                  <span className="text-[10px] font-semibold font-sora uppercase tracking-wider text-muted px-2 py-0.5 rounded-full bg-subtle-bg border border-border/60">
+                    {svc.badge}
+                  </span>
+                </div>
+
+                {/* Content */}
+                <h3 className="text-base font-bold font-sora text-heading mb-3 group-hover:text-accent transition-colors duration-200">
+                  {svc.title}
+                </h3>
+                <p className="text-xs text-muted leading-relaxed font-light font-manrope">
+                  {svc.desc}
+                </p>
+              </div>
+
+              {/* Action Trigger */}
+              <div className="pt-4 border-t border-border/40 mt-4 flex items-center justify-between text-[11px] font-semibold text-accent group-hover:text-heading transition-colors">
+                <Link href="/contact" className="flex items-center gap-1.5 hover:underline">
+                  Configure Project
+                </Link>
+                <ArrowUpRight size={14} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+              </div>
+
+            </motion.div>
+          ))}
+        </motion.div>
+
       </div>
     </section>
   );
