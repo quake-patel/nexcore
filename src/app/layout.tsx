@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import '@/components/curationchamp/curationchamp.css';
 import CurationChampLayoutWrapper from '@/components/curationchamp/CurationChampLayoutWrapper';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 
@@ -48,9 +46,6 @@ export default function RootLayout({
       </head>
       <body>
         <CurationChampLayoutWrapper>{children}</CurationChampLayoutWrapper>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
         <SpeedInsights />
         <Analytics />
       </body>
